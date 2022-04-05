@@ -12,6 +12,8 @@ from tabulate import tabulate
 import functools
 import os
 import glob
+import ffmpeg
+from timecode import Timecode
 
 
 verified = False
@@ -134,6 +136,53 @@ def download_video(url):
     return downloaded
 
 
+def probe_video():
+    files = glob.glob(os.getcwd()+"/temp/downloaded.*")
+    file = files[0].replace("\\", "/")
+
+    probe = ffmpeg.probe(file)
+    video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+
+    width = int(video_stream['width'])
+    height = int(video_stream['height'])
+    duration = str(video_stream['tags']["DURATION"])
+
+    return video_stream
+
+
+def output_video():
+    files = glob.glob(os.getcwd()+"/temp/downloaded.*")
+    file = files[0].replace("\\", "/")
+
+    in_file = ffmpeg.input(file)
+
+    ffmpeg.output(in_file, os.getcwd()+"/output.mp4", )
+
+
+def convert_video(stats):
+    timecode_duration = Timecode(stats["r_frame_rate"], stats['tags']["DURATION"])
+
+    timeloop = True
+
+    while(timeloop):
+        print()
+        print("The duration of the video is "+stats['tags']["DURATION"])
+        time = input("Start Time (Format = 0:0:0.0): ")
+        print(time)
+
+        try:
+            newtimecode = Timecode(stats["r_frame_rate"], time)
+        except:
+            print("Something about the timecode seems wrong. Try again?")
+        else:
+            if newtimecode < timecode_duration:
+                print("Before")
+            else:
+                print("After")
+            timeloop = False
+    a = 1
+
+
 def full_wizard():
     print()
     print("This will lead you through downloading and converting a video all in one process.")
@@ -147,7 +196,12 @@ def full_wizard():
 
     downloaded = download_video(result.input_string)
 
-    print(str(downloaded))
+    if not downloaded:
+        return
+
+    video_stats = probe_video()
+
+    convert_video(video_stats)
 
 
 def main():
@@ -155,6 +209,8 @@ def main():
     function_item = FunctionItem("Full Wizard", full_wizard, should_exit=False)
     menu.append_item(function_item)
     menu.show()
+
+    clear_temps()
 
 
 if __name__ == "__main__":
