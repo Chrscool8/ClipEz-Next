@@ -1,2 +1,5 @@
 __pycache__/*
+include/__pycache__/*
 temp/*
+.venv/*
+.qt_for_python/*
