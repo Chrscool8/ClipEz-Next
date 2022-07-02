@@ -10,6 +10,7 @@ from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 
 import jsonmodel
+#import qdarkstyle
 
 
 def colortext(color, text):
@@ -43,7 +44,6 @@ class Widget(QWidget):
         try:
             info_dict = ydl.extract_info(url=url_text, download=False)
             document = json.loads(json.dumps(info_dict, indent=4))
-            print(json.dumps(info_dict, indent=4))
             model = jsonmodel.JsonModel()
             model.load(document)
             self.widget_by_name("treeview_detailed").setModel(model)
@@ -52,9 +52,10 @@ class Widget(QWidget):
             self.widget_by_name("textbox_status").append(styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
 
     def enable_clear_text_button(self):
-        self.widget_by_name("button_cleartext").setEnabled((len(self.widget_by_name("lineedit_url").text()) != 0))
-        self.widget_by_name("button_getinfo").setEnabled((len(self.widget_by_name("lineedit_url").text()) != 0))
-        self.widget_by_name("button_downloadstart").setEnabled((len(self.widget_by_name("lineedit_url").text()) != 0))
+        whether = (len(self.widget_by_name("lineedit_url").text()) != 0)
+        self.widget_by_name("button_cleartext").setEnabled(whether)
+        self.widget_by_name("button_getinfo").setEnabled(whether)
+        self.widget_by_name("button_downloadstart").setEnabled(whether)
 
     def clear_url(self):
         self.widget_by_name("lineedit_url").clear()
@@ -78,6 +79,8 @@ class Widget(QWidget):
 
 if __name__ == "__main__":
     app = QApplication([])
+    #app.setStyleSheet(qdarkstyle.load_stylesheet())
+
     widget = Widget()
     widget.show()
     sys.exit(app.exec())
