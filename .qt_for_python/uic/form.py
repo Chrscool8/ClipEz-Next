@@ -31,8 +31,8 @@ class Ui_Widget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(Widget.sizePolicy().hasHeightForWidth())
         Widget.setSizePolicy(sizePolicy)
-        self.gridLayout = QGridLayout(Widget)
-        self.gridLayout.setObjectName(u"gridLayout")
+        self.verticalLayout_4 = QVBoxLayout(Widget)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.tabs_overall = QTabWidget(Widget)
         self.tabs_overall.setObjectName(u"tabs_overall")
         self.tab_downloadvideo = QWidget()
@@ -166,7 +166,7 @@ class Ui_Widget(object):
 
         self.tabs_overall.addTab(self.tab_syncpanel, "")
 
-        self.gridLayout.addWidget(self.tabs_overall, 0, 0, 1, 1)
+        self.verticalLayout_4.addWidget(self.tabs_overall)
 
 
         self.retranslateUi(Widget)

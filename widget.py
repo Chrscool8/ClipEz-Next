@@ -1,14 +1,15 @@
 # This Python file uses the following encoding: utf-8
-import os
-from pathlib import Path
-import sys
 import json
-import jsonmodel
-import yt_dlp
+import os
+import sys
+from pathlib import Path
 
-from PySide6.QtWidgets import QApplication, QWidget, QPushButton
+import yt_dlp
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+
+import jsonmodel
 
 
 def colortext(color, text):
@@ -36,7 +37,7 @@ class Widget(QWidget):
         self.setWindowTitle("ClipEZ-Next")
 
     def click_download(self):
-        self.widget_by_name("textbox_status").append("Getting Video Info...")
+        self.widget_by_name("textbox_status").append(styletext("b", colortext("Green", "INFO: "))+"Getting Video Info...")
         ydl = yt_dlp.YoutubeDL({})
         url_text = self.widget_by_name("lineedit_url").text()
         try:
@@ -45,15 +46,18 @@ class Widget(QWidget):
             print(json.dumps(info_dict, indent=4))
             model = jsonmodel.JsonModel()
             model.load(document)
-            self.widget_by_name("treeView").setModel(model)
-            self.widget_by_name("textbox_status").append("Got Video Info!")
+            self.widget_by_name("treeview_detailed").setModel(model)
+            self.widget_by_name("textbox_status").append(styletext("b", colortext("Green", "INFO: ")) + "Got Video Info!")
         except:
-            self.widget_by_name("textbox_status").append(styletext("b", colortext("Red", "ERROR"))+": Unsupported URL: "+styletext("i", url_text))
+            self.widget_by_name("textbox_status").append(styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
 
     def enable_clear_text_button(self):
         self.widget_by_name("button_cleartext").setEnabled((len(self.widget_by_name("lineedit_url").text()) != 0))
         self.widget_by_name("button_getinfo").setEnabled((len(self.widget_by_name("lineedit_url").text()) != 0))
         self.widget_by_name("button_downloadstart").setEnabled((len(self.widget_by_name("lineedit_url").text()) != 0))
+
+    def clear_url(self):
+        self.widget_by_name("lineedit_url").clear()
 
     def load_ui(self):
         loader = QUiLoader()
@@ -62,7 +66,8 @@ class Widget(QWidget):
         ui_file.open(QFile.ReadOnly)
         loader.load(ui_file, self)
 
-        self.widget_by_name("button_downloadstart").clicked.connect(self.click_download)
+        self.widget_by_name("button_cleartext").clicked.connect(self.clear_url)
+        self.widget_by_name("button_getinfo").clicked.connect(self.click_download)
         self.widget_by_name("lineedit_url").returnPressed.connect(self.click_download)
         self.widget_by_name("lineedit_url").textChanged.connect(self.enable_clear_text_button)
 

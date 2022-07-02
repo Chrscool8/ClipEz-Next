@@ -19,8 +19,8 @@
   <property name="windowTitle">
    <string>ClipEz-Next</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
     <widget class="QTabWidget" name="tabs_overall">
      <property name="currentIndex">
       <number>0</number>
