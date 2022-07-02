@@ -5,7 +5,8 @@ import sys
 from pathlib import Path
 
 import yt_dlp
-from PySide6.QtCore import QFile
+
+from PySide6.QtCore import QFile, QIODevice
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
@@ -44,33 +45,55 @@ def list_entry(json_data, title, tag):
     return answer
 
 
-class Widget(QWidget):
+'''def widget_by_name(obj, name):
+    results = obj.findChildren(QWidget, name)
+    if len(results) > 0:
+        return results[0]
+    return QWidget()
+'''
 
-    def widget_by_name(self, name):
-        return self.findChildren(QWidget, name)[0]
+
+class MainWindow(QMainWindow):
+    window = None
 
     def __init__(self):
-        super(Widget, self).__init__()
-        self.load_ui()
+        super(MainWindow, self).__init__()
+
+        ui_file_name = "mainwindow.ui"
+        ui_file = QFile(ui_file_name)
+        if not ui_file.open(QIODevice.ReadOnly):
+            print(f"Cannot open {ui_file_name}: {ui_file.errorString()}")
+            sys.exit(-1)
+        loader = QUiLoader()
+        window = loader.load(ui_file)
+        ui_file.close()
+        if not window:
+            print(loader.errorString())
+            sys.exit(-1)
+        window.show()
+        self.window = window
+
         self.setWindowTitle("ClipEZ-Next")
 
-        self.widget_by_name("button_cleartext").clicked.connect(self.clear_url)
-        self.widget_by_name("button_getinfo").clicked.connect(self.get_video_info)
-        self.widget_by_name("button_downloadstart").clicked.connect(self.click_download)
-        self.widget_by_name("lineedit_url").returnPressed.connect(self.click_download)
-        self.widget_by_name("lineedit_url").textChanged.connect(self.enable_clear_text_button)
 
+        self.window.findChild(QAction, "action_exit").triggered.connect(quit)
 
-        self.widget_by_name("image_thumb").setMinimumWidth(self.widget_by_name("treeview_detailed").height()*9/16)
-        self.widget_by_name("image_thumb").setMaximumWidth(self.widget_by_name("treeview_detailed").height()*9/16)
-        self.widget_by_name("image_thumb").setFixedWidth(self.widget_by_name("treeview_detailed").height()*9/16)
+        self.window.findChild(QPushButton, "button_cleartext").clicked.connect(self.clear_url)
+        self.window.findChild(QPushButton, "button_getinfo").clicked.connect(self.get_video_info)
+        self.window.findChild(QPushButton, "button_downloadstart").clicked.connect(self.click_download)
+        self.window.findChild(QLineEdit, "lineedit_url").returnPressed.connect(self.click_download)
+        self.window.findChild(QLineEdit, "lineedit_url").textChanged.connect(self.enable_clear_text_button)
+
+        #widget_by_name(self.window, "image_thumb").setMinimumWidth(widget_by_name("treeview_detailed").height()*9/16)
+        #widget_by_name(self.window, "image_thumb").setMaximumWidth(widget_by_name("treeview_detailed").height()*9/16)
+        #widget_by_name(self.window, "image_thumb").setFixedWidth(self.widget_by_name("treeview_detailed").height()*9/16)
 
         self.enable_clear_text_button()
 
     def get_video_info(self):
-        self.widget_by_name("textbox_status").append(styletext("b", colortext("Green", "INFO: "))+"Getting Video Info...")
+        self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "INFO: "))+"Getting Video Info...")
         ydl = yt_dlp.YoutubeDL({})
-        url_text = self.widget_by_name("lineedit_url").text()
+        url_text = self.window.findChild(QLineEdit, "lineedit_url").text()
         try:
             info_dict = ydl.extract_info(url=url_text, download=False)
             json_data = json.dumps(info_dict, indent=4)
@@ -78,8 +101,8 @@ class Widget(QWidget):
             document = json.loads(json_data)
             model = jsonmodel.JsonModel()
             model.load(document)
-            self.widget_by_name("treeview_detailed").setModel(model)
-            self.widget_by_name("textbox_status").append(styletext("b", colortext("Green", "INFO: ")) + "Got Video Info!")
+            self.window.findChild(QTreeView, "treeview_detailed").setModel(model)
+            self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "INFO: ")) + "Got Video Info!")
 
             list_info = [
                 ["title", info_dict.get("title", None)],
@@ -97,9 +120,9 @@ class Widget(QWidget):
             ]
 
             for i in range(len(list_info)):
-                self.widget_by_name("table_simple").insertRow(self.widget_by_name("table_simple").rowCount())
-                self.widget_by_name("table_simple").setItem(i, 0, QTableWidgetItem(list_info[i][0]))
-                self.widget_by_name("table_simple").setItem(i, 1, QTableWidgetItem(list_info[i][1]))
+                self.window.findChild(QTableWidget, "table_simple").insertRow(self.window.findChild(QTableWidget, "table_simple").rowCount())
+                self.window.findChild(QTableWidget, "table_simple").setItem(i, 0, QTableWidgetItem(list_info[i][0]))
+                self.window.findChild(QTableWidget, "table_simple").setItem(i, 1, QTableWidgetItem(list_info[i][1]))
 
             thumb_url = info_dict.get("thumbnail", None)
             if thumb_url != None:
@@ -107,38 +130,29 @@ class Widget(QWidget):
                     data = _url.read()
                     px = QPixmap()
                     px.loadFromData(data)
-                    self.widget_by_name("image_thumb").setPixmap(px)
+                    self.window.findChild(QLabel, "image_thumb").setPixmap(px)
 
         except Exception as e:
             print(e)
-            self.widget_by_name("textbox_status").append(styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
+            self.window.findChild(QTextEdit,  "textbox_status").append(
+                styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
 
     def click_download(self):
         self.get_video_info()
 
     def enable_clear_text_button(self):
-        whether = (len(self.widget_by_name("lineedit_url").text()) != 0)
-        self.widget_by_name("button_cleartext").setEnabled(whether)
-        self.widget_by_name("button_getinfo").setEnabled(whether)
-        self.widget_by_name("button_downloadstart").setEnabled(whether)
+        whether = (len(self.window.findChild(QLineEdit,  "lineedit_url").text()) != 0)
+        self.window.findChild(QPushButton,  "button_cleartext").setEnabled(whether)
+        self.window.findChild(QPushButton, "button_getinfo").setEnabled(whether)
+        self.window.findChild(QPushButton, "button_downloadstart").setEnabled(whether)
 
     def clear_url(self):
         self.widget_by_name("lineedit_url").clear()
-
-    def load_ui(self):
-        loader = QUiLoader()
-        path = os.fspath(Path(__file__).resolve().parent / "form.ui")
-        ui_file = QFile(path)
-        ui_file.open(QFile.ReadOnly)
-        loader.load(ui_file, self)
-
-        ui_file.close()
 
 
 if __name__ == "__main__":
     app = QApplication([])
     # app.setStyleSheet(qdarkstyle.load_stylesheet())
 
-    widget = Widget()
-    widget.show()
+    widget = MainWindow()
     sys.exit(app.exec())
