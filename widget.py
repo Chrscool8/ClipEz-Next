@@ -8,9 +8,9 @@ import yt_dlp
 from PySide6.QtCore import QFile
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6.examples.widgets.itemviews.jsonmodel import jsonmodel
 
-import jsonmodel
-#import qdarkstyle
+import qdarkstyle
 
 
 def colortext(color, text):
@@ -48,7 +48,8 @@ class Widget(QWidget):
             model.load(document)
             self.widget_by_name("treeview_detailed").setModel(model)
             self.widget_by_name("textbox_status").append(styletext("b", colortext("Green", "INFO: ")) + "Got Video Info!")
-        except:
+        except Exception as e:
+            print(e)
             self.widget_by_name("textbox_status").append(styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
 
     def enable_clear_text_button(self):
@@ -79,7 +80,7 @@ class Widget(QWidget):
 
 if __name__ == "__main__":
     app = QApplication([])
-    #app.setStyleSheet(qdarkstyle.load_stylesheet())
+    # app.setStyleSheet(qdarkstyle.load_stylesheet())
 
     widget = Widget()
     widget.show()
