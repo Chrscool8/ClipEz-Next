@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1273</width>
-    <height>828</height>
+    <width>1165</width>
+    <height>805</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,6 +45,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="text">
+               <string>https://youtu.be/MBNvk9CA1j4</string>
               </property>
              </widget>
             </item>
@@ -120,8 +123,8 @@
          <property name="title">
           <string>Video Info</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
            <widget class="QTabWidget" name="tabs_videoinfo">
             <property name="currentIndex">
              <number>0</number>
@@ -132,7 +135,13 @@
              </attribute>
              <layout class="QGridLayout" name="gridLayout_4">
               <item row="0" column="0">
-               <widget class="QTableWidget" name="tableWidget">
+               <widget class="QTableWidget" name="table_simple">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="alternatingRowColors">
                  <bool>true</bool>
                 </property>
@@ -172,6 +181,31 @@
               </item>
              </layout>
             </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="image_thumb">
+            <property name="minimumSize">
+             <size>
+              <width>160</width>
+              <height>90</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>160</width>
+              <height>90</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="pixmap">
+             <pixmap>G:/Documents/GitHub/Download-and-Clip/assets/16x9.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
