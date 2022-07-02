@@ -18,8 +18,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDial, QFrame, QGridLayout,
     QGroupBox, QHBoxLayout, QHeaderView, QLineEdit,
     QProgressBar, QPushButton, QSizePolicy, QSpacerItem,
-    QTabWidget, QTextEdit, QTreeView, QVBoxLayout,
-    QWidget)
+    QTabWidget, QTableWidget, QTableWidgetItem, QTextEdit,
+    QTreeView, QVBoxLayout, QWidget)
 
 class Ui_Widget(object):
     def setupUi(self, Widget):
@@ -106,10 +106,21 @@ class Ui_Widget(object):
         self.tab_videoinfo_simple.setObjectName(u"tab_videoinfo_simple")
         self.gridLayout_4 = QGridLayout(self.tab_videoinfo_simple)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.treeview_simple = QTreeView(self.tab_videoinfo_simple)
-        self.treeview_simple.setObjectName(u"treeview_simple")
+        self.tableWidget = QTableWidget(self.tab_videoinfo_simple)
+        if (self.tableWidget.columnCount() < 2):
+            self.tableWidget.setColumnCount(2)
+        __qtablewidgetitem = QTableWidgetItem()
+        __qtablewidgetitem.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
+        self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        __qtablewidgetitem1.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
+        self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        self.tableWidget.setObjectName(u"tableWidget")
+        self.tableWidget.setAlternatingRowColors(True)
+        self.tableWidget.setTextElideMode(Qt.ElideRight)
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)
 
-        self.gridLayout_4.addWidget(self.treeview_simple, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.tableWidget, 0, 0, 1, 1)
 
         self.tabs_videoinfo.addTab(self.tab_videoinfo_simple, "")
         self.tab_videoinfo_detailed = QWidget()
@@ -185,6 +196,10 @@ class Ui_Widget(object):
         self.button_getinfo.setText(QCoreApplication.translate("Widget", u"Get Info", None))
         self.button_downloadstart.setText(QCoreApplication.translate("Widget", u"Download", None))
         self.groupbox_videoinfo.setTitle(QCoreApplication.translate("Widget", u"Video Info", None))
+        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Widget", u"key", None));
+        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Widget", u"value", None));
         self.tabs_videoinfo.setTabText(self.tabs_videoinfo.indexOf(self.tab_videoinfo_simple), QCoreApplication.translate("Widget", u"Simple", None))
         self.tabs_videoinfo.setTabText(self.tabs_videoinfo.indexOf(self.tab_videoinfo_detailed), QCoreApplication.translate("Widget", u"Detailed", None))
         self.groupbox_status.setTitle(QCoreApplication.translate("Widget", u"Status", None))

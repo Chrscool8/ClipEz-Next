@@ -132,7 +132,33 @@
              </attribute>
              <layout class="QGridLayout" name="gridLayout_4">
               <item row="0" column="0">
-               <widget class="QTreeView" name="treeview_simple"/>
+               <widget class="QTableWidget" name="tableWidget">
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="textElideMode">
+                 <enum>Qt::ElideRight</enum>
+                </property>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+                <column>
+                 <property name="text">
+                  <string>key</string>
+                 </property>
+                 <property name="textAlignment">
+                  <set>AlignLeading|AlignVCenter</set>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>value</string>
+                 </property>
+                 <property name="textAlignment">
+                  <set>AlignLeading|AlignVCenter</set>
+                 </property>
+                </column>
+               </widget>
               </item>
              </layout>
             </widget>
