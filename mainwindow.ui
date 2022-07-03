@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>ClipEZ-Next</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -42,7 +42,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>https://youtu.be/MBNvk9CA1j4</string>
+                <string>https://youtu.be/zkfeqLmOOQI</string>
                </property>
               </widget>
              </item>
