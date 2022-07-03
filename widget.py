@@ -17,14 +17,19 @@ import qdarkstyle
 import urllib.request
 
 
-def colortext(color, text):
+def browse_for_file(destination_widget: QLineEdit):
+    filename = QFileDialog.getOpenFileName(caption="Open Video", dir=os.getcwd(), filter="Video File (*.*)")
+    destination_widget.setText(filename[0])
+
+
+def text_color(color, text):
     styled_text = "<font color=\""+color+"\">"
     styled_text += text
     styled_text += "</font>"
     return styled_text
 
 
-def styletext(stylecode, text):
+def text_style(stylecode, text):
     styled_text = "<"+stylecode+">"
     styled_text += text
     styled_text += "</"+stylecode+">"
@@ -72,6 +77,9 @@ class MainWindow(QMainWindow):
         self.window.findChild(QLineEdit, "lineedit_url").returnPressed.connect(self.click_download)
         self.window.findChild(QLineEdit, "lineedit_url").textChanged.connect(self.enable_clear_text_button)
 
+        self.window.findChild(QPushButton, "button_browsevideo").clicked.connect(
+            lambda: browse_for_file(self.window.findChild(QLineEdit, "lineedit_videopath")))
+
         #widget_by_name(self.window, "image_thumb").setMinimumWidth(widget_by_name("treeview_detailed").height()*9/16)
         #widget_by_name(self.window, "image_thumb").setMaximumWidth(widget_by_name("treeview_detailed").height()*9/16)
         #widget_by_name(self.window, "image_thumb").setFixedWidth(self.widget_by_name("treeview_detailed").height()*9/16)
@@ -81,7 +89,7 @@ class MainWindow(QMainWindow):
         self.clear_temps()
 
     def get_video_info(self):
-        self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "INFO: "))+"Getting Video Info...")
+        self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "INFO: "))+"Getting Video Info...")
         ydl = yt_dlp.YoutubeDL({})
         url_text = self.window.findChild(QLineEdit, "lineedit_url").text()
         try:
@@ -92,7 +100,7 @@ class MainWindow(QMainWindow):
             model = jsonmodel.JsonModel()
             model.load(document)
             self.window.findChild(QTreeView, "treeview_detailed").setModel(model)
-            self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "INFO: ")) + "Got Video Info!")
+            self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "INFO: ")) + "Got Video Info!")
 
             list_info = [
                 ["Title", info_dict.get("title", None)],
@@ -125,7 +133,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(e)
             self.window.findChild(QTextEdit, "textbox_status").append(
-                styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
+                text_style("b", text_color("Red", "ERROR: ")) + "Unsupported URL: "+text_style("i", url_text))
 
         self.app.processEvents()
 
@@ -141,22 +149,22 @@ class MainWindow(QMainWindow):
     def my_hook(self, d):
         if d['status'] == 'finished':
             print('\n\nDone downloading.\n')
-            self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "DOWNLOAD: \t"))+"Done downloading.")
+            self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "DOWNLOAD: \t"))+"Done downloading.")
 
         if d['status'] == 'error':
             print('\n\nSomething went wrong with the download.\n')
             self.window.findChild(QTextEdit, "textbox_status").append(
-                styletext("b", colortext("Green", "DOWNLOAD: \t"))+"Something went wrong with the download.")
+                text_style("b", text_color("Green", "DOWNLOAD: \t"))+"Something went wrong with the download.")
 
         if d['status'] == 'downloading':
             self.window.findChild(QProgressBar, "progressbar_download").setValue(float(self.escape_ansi(d['_percent_str']).strip().replace("%", "")))
 
-            status_line = styletext("b", colortext("Green", "DOWNLOAD: \t"))
-            status_line += colortext("Blue", self.escape_ansi(d['_percent_str']))
+            status_line = text_style("b", text_color("Green", "DOWNLOAD: \t"))
+            status_line += text_color("Blue", self.escape_ansi(d['_percent_str']))
             status_line += " of "
-            status_line += styletext("i", colortext("Green", self.escape_ansi(d['filename'])))
+            status_line += text_style("i", text_color("Green", self.escape_ansi(d['filename'])))
             status_line += " ETA "
-            status_line += colortext("Orange", self.escape_ansi(d['_eta_str']))
+            status_line += text_color("Orange", self.escape_ansi(d['_eta_str']))
             self.window.findChild(QTextEdit, "textbox_status").append(status_line)
 
             self.app.processEvents()
