@@ -39,10 +39,11 @@ def setdarkmode(enabled):
 
 class MainWindow(QMainWindow):
     window = None
-
-    def __init__(self):
+    app = None
+    def __init__(self, _app):
         super(MainWindow, self).__init__()
-
+        self.app = _app
+                
         ui_file_name = "mainwindow.ui"
         ui_file = QFile(ui_file_name)
         if not ui_file.open(QIODevice.ReadOnly):
@@ -57,7 +58,8 @@ class MainWindow(QMainWindow):
         window.show()
         self.window = window
 
-        self.setWindowTitle("ClipEZ-Next")
+        #self.setWindowTitle("ClipEZ-Next")
+        app.setWindowIcon(QIcon('WackyScissorsOutline.png'))
 
         self.window.findChild(QAction, "action_exit").triggered.connect(quit)
         self.window.findChild(QAction, "action_theme").triggered.connect(setdarkmode)
@@ -136,6 +138,5 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication([])
-
-    widget = MainWindow()
+    widget = MainWindow(app)
     sys.exit(app.exec())
