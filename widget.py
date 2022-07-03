@@ -89,17 +89,17 @@ class MainWindow(QMainWindow):
             self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "INFO: ")) + "Got Video Info!")
 
             list_info = [
-                ["title", info_dict.get("title", None)],
-                ["uploader", info_dict.get("uploader", None)],
-                ["id", info_dict.get("id", None)],
-                ["webpage_url", info_dict.get("webpage_url", None)],
-                ["thumbnail", info_dict.get("thumbnail", None)],
-                ["view_count", info_dict.get("view_count", None)],
-                ["duration", info_dict.get("duration", None)],
-                ["upload_date", info_dict.get("upload_date", None)],
-                ["age_limit", info_dict.get("age_limit", None)],
-                ["uploader_id", info_dict.get("uploader_id", None)],
-                ["uploader_url", info_dict.get("uploader_url", None)],
+                ["Title", info_dict.get("title", None)],
+                ["Uploader", info_dict.get("uploader", None)],
+                ["ID", info_dict.get("id", None)],
+                ["URL", info_dict.get("webpage_url", None)],
+                ["Thumbnail", info_dict.get("thumbnail", None)],
+                ["View Count", info_dict.get("view_count", None)],
+                ["Duration", info_dict.get("duration", None)],
+                ["Upload Date", info_dict.get("upload_date", None)],
+                ["Age Limit", info_dict.get("age_limit", None)],
+                ["Uploader ID", info_dict.get("uploader_id", None)],
+                ["Uploader Url", info_dict.get("uploader_url", None)],
                 ["Subscribers", info_dict.get("channel_follower_count", None)],
             ]
 
