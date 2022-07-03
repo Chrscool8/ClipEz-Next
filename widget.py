@@ -3,6 +3,9 @@ import json
 import os
 import sys
 from pathlib import Path
+import glob
+import re
+
 
 import yt_dlp
 
@@ -75,6 +78,8 @@ class MainWindow(QMainWindow):
         #widget_by_name(self.window, "image_thumb").setFixedWidth(self.widget_by_name("treeview_detailed").height()*9/16)
 
         self.enable_clear_text_button()
+        
+        self.clear_temps()
 
     def get_video_info(self):
         self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "INFO: "))+"Getting Video Info...")
@@ -122,9 +127,65 @@ class MainWindow(QMainWindow):
             print(e)
             self.window.findChild(QTextEdit, "textbox_status").append(
                 styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
+            
+        self.app.processEvents()
+
+    def clear_temps(self):
+        files = glob.glob(os.getcwd()+"/temp/downloaded.*")
+        for file in files:
+            os.remove(file)
+
+    def escape_ansi(self, line):
+        ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+        return ansi_escape.sub('', line)
+
+    def my_hook(self, d):
+        if d['status'] == 'finished':
+            print('\n\nDone downloading.\n')
+            self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "DOWNLOAD: \t"))+"Done downloading.")
+
+        if d['status'] == 'error':
+            print('\n\nSomething went wrong with the download.\n')
+            self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "DOWNLOAD: \t"))+"Something went wrong with the download.")
+
+        if d['status'] == 'downloading':
+            self.window.findChild(QProgressBar, "progressbar_download").setValue(float(self.escape_ansi(d['_percent_str']).strip().replace("%", "")))
+            
+            status_line = styletext("b", colortext("Green", "DOWNLOAD: \t"))
+            status_line += colortext("Blue", self.escape_ansi(d['_percent_str']))
+            status_line += " of "
+            status_line += styletext("i", colortext("Green",self.escape_ansi(d['filename'])))
+            status_line += " ETA "
+            status_line += colortext("Orange",self.escape_ansi(d['_eta_str']))           
+            self.window.findChild(QTextEdit, "textbox_status").append(status_line)
+            
+            self.app.processEvents()
+            print(d['filename'], d['_percent_str'], d['_eta_str'])
 
     def click_download(self):
         self.get_video_info()
+
+        try:
+            os.makedirs(os.getcwd()+"/temp/")
+        except:  # all good
+            a = 0
+
+        if (not os.path.isdir(os.getcwd()+"/temp/")):
+            print("Can't find temp directory. Returning.")
+            return False
+
+        self.clear_temps()
+
+        options = {
+            'outtmpl': os.getcwd()+"/temp/downloaded.%(ext)s",
+            'fixup': "detect_or_warn",
+            'noplaylist': True,
+            'progress_hooks': [self.my_hook],
+        }
+
+        ydl = yt_dlp.YoutubeDL(options)
+        url_text = self.window.findChild(QLineEdit, "lineedit_url").text()
+        info_dict = ydl.extract_info(url=url_text, download=True)
 
     def enable_clear_text_button(self):
         whether = (len(self.window.findChild(QLineEdit, "lineedit_url").text()) != 0)
