@@ -30,27 +30,11 @@ def styletext(stylecode, text):
     return styled_text
 
 
-def list_entry(json_data, title, tag):
-    entry = ["", ""]
-
-    entry[0] = title
-
-    answer = json_data.get(tag, "N/A")
-    #line_length = 50
-    #list_lines = [answer[i:i+line_length] for i in range(0, len(answer), line_length)]
-
-    # for line in list_lines:
-    #    entry[1] += line + "\n"
-
-    return answer
-
-
-'''def widget_by_name(obj, name):
-    results = obj.findChildren(QWidget, name)
-    if len(results) > 0:
-        return results[0]
-    return QWidget()
-'''
+def setdarkmode(enabled):
+    if enabled:
+        app.setStyleSheet(qdarkstyle.load_stylesheet())
+    else:
+        app.setStyleSheet("")
 
 
 class MainWindow(QMainWindow):
@@ -75,8 +59,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("ClipEZ-Next")
 
-
         self.window.findChild(QAction, "action_exit").triggered.connect(quit)
+        self.window.findChild(QAction, "action_theme").triggered.connect(setdarkmode)
 
         self.window.findChild(QPushButton, "button_cleartext").clicked.connect(self.clear_url)
         self.window.findChild(QPushButton, "button_getinfo").clicked.connect(self.get_video_info)
@@ -134,25 +118,24 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             print(e)
-            self.window.findChild(QTextEdit,  "textbox_status").append(
+            self.window.findChild(QTextEdit, "textbox_status").append(
                 styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
 
     def click_download(self):
         self.get_video_info()
 
     def enable_clear_text_button(self):
-        whether = (len(self.window.findChild(QLineEdit,  "lineedit_url").text()) != 0)
+        whether = (len(self.window.findChild(QLineEdit, "lineedit_url").text()) != 0)
         self.window.findChild(QPushButton,  "button_cleartext").setEnabled(whether)
         self.window.findChild(QPushButton, "button_getinfo").setEnabled(whether)
         self.window.findChild(QPushButton, "button_downloadstart").setEnabled(whether)
 
     def clear_url(self):
-        self.widget_by_name("lineedit_url").clear()
+        self.window.findChild(QLineEdit, "lineedit_url").clear()
 
 
 if __name__ == "__main__":
     app = QApplication([])
-    # app.setStyleSheet(qdarkstyle.load_stylesheet())
 
     widget = MainWindow()
     sys.exit(app.exec())
