@@ -5,8 +5,6 @@ import sys
 from pathlib import Path
 import glob
 import re
-
-
 import yt_dlp
 
 from PySide6.QtCore import QFile, QIODevice
@@ -43,10 +41,11 @@ def setdarkmode(enabled):
 class MainWindow(QMainWindow):
     window = None
     app = None
+
     def __init__(self, _app):
         super(MainWindow, self).__init__()
         self.app = _app
-                
+
         ui_file_name = "mainwindow.ui"
         ui_file = QFile(ui_file_name)
         if not ui_file.open(QIODevice.ReadOnly):
@@ -61,7 +60,7 @@ class MainWindow(QMainWindow):
         window.show()
         self.window = window
 
-        #self.setWindowTitle("ClipEZ-Next")
+        # self.setWindowTitle("ClipEZ-Next")
         app.setWindowIcon(QIcon('WackyScissorsOutline.png'))
 
         self.window.findChild(QAction, "action_exit").triggered.connect(quit)
@@ -78,7 +77,7 @@ class MainWindow(QMainWindow):
         #widget_by_name(self.window, "image_thumb").setFixedWidth(self.widget_by_name("treeview_detailed").height()*9/16)
 
         self.enable_clear_text_button()
-        
+
         self.clear_temps()
 
     def get_video_info(self):
@@ -127,7 +126,7 @@ class MainWindow(QMainWindow):
             print(e)
             self.window.findChild(QTextEdit, "textbox_status").append(
                 styletext("b", colortext("Red", "ERROR: ")) + "Unsupported URL: "+styletext("i", url_text))
-            
+
         self.app.processEvents()
 
     def clear_temps(self):
@@ -146,19 +145,20 @@ class MainWindow(QMainWindow):
 
         if d['status'] == 'error':
             print('\n\nSomething went wrong with the download.\n')
-            self.window.findChild(QTextEdit, "textbox_status").append(styletext("b", colortext("Green", "DOWNLOAD: \t"))+"Something went wrong with the download.")
+            self.window.findChild(QTextEdit, "textbox_status").append(
+                styletext("b", colortext("Green", "DOWNLOAD: \t"))+"Something went wrong with the download.")
 
         if d['status'] == 'downloading':
             self.window.findChild(QProgressBar, "progressbar_download").setValue(float(self.escape_ansi(d['_percent_str']).strip().replace("%", "")))
-            
+
             status_line = styletext("b", colortext("Green", "DOWNLOAD: \t"))
             status_line += colortext("Blue", self.escape_ansi(d['_percent_str']))
             status_line += " of "
-            status_line += styletext("i", colortext("Green",self.escape_ansi(d['filename'])))
+            status_line += styletext("i", colortext("Green", self.escape_ansi(d['filename'])))
             status_line += " ETA "
-            status_line += colortext("Orange",self.escape_ansi(d['_eta_str']))           
+            status_line += colortext("Orange", self.escape_ansi(d['_eta_str']))
             self.window.findChild(QTextEdit, "textbox_status").append(status_line)
-            
+
             self.app.processEvents()
             print(d['filename'], d['_percent_str'], d['_eta_str'])
 
