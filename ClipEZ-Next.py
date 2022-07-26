@@ -75,7 +75,6 @@ class MainWindow(QMainWindow):
         window.show()
         self.window = window
 
-        # self.setWindowTitle("ClipEZ-Next")
         app.setWindowIcon(QIcon('WackyScissorsOutline.png'))
 
         self.window.findChild(QAction, "action_exit").triggered.connect(quit)
@@ -112,6 +111,7 @@ class MainWindow(QMainWindow):
         self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "INFO: "))+"Getting Video Info...")
         ydl = yt_dlp.YoutubeDL({})
         url_text = self.window.findChild(QLineEdit, "lineedit_url").text()
+        list_info = []
         try:
             info_dict = ydl.extract_info(url=url_text, download=False)
             json_data = json.dumps(info_dict, indent=4)
@@ -121,6 +121,8 @@ class MainWindow(QMainWindow):
             model.load(document)
             self.window.findChild(QTreeView, "treeview_detailed").setModel(model)
             self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "INFO: ")) + "Got Video Info!")
+
+            title = info_dict.get("title", None)
 
             list_info = [
                 ["Title", info_dict.get("title", None)],
@@ -154,8 +156,10 @@ class MainWindow(QMainWindow):
             print(e)
             self.window.findChild(QTextEdit, "textbox_status").append(
                 text_style("b", text_color("Red", "ERROR: ")) + "Unsupported URL: "+text_style("i", url_text))
+            return False, list_info
 
         self.app.processEvents()
+        return True, list_info
 
     def clear_temps(self):
         files = glob.glob(os.getcwd()+"/temp/downloaded.*")
@@ -169,7 +173,8 @@ class MainWindow(QMainWindow):
     def my_hook(self, d):
         if d['status'] == 'finished':
             print('\n\nDone downloading'+d["filename"]+'.\n')
-            self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "DOWNLOAD: \t"))+"Done downloading.")
+            self.window.findChild(QTextEdit, "textbox_status").append(text_style(
+                "b", text_color("Green", "DOWNLOAD: \t"))+"Done downloading "+text_color("Green", d["filename"])+".")
 
         if d['status'] == 'error':
             print('\n\nSomething went wrong with the download.\n')
@@ -191,17 +196,23 @@ class MainWindow(QMainWindow):
             print(d['filename'], d['_percent_str'], d['_eta_str'])
 
     def click_download(self):
-        default_file_name = os.getcwd() + "/temp/download"
+        infocheck = self.get_video_info()
+        
+        if not infocheck[0]:
+            return
+        
+        safename = "".join([c for c in infocheck[1][0][1] if c.isalpha() or c.isdigit() or c == ' ']).rstrip()
 
-        self.save_video_location = QFileDialog.getSaveFileName(self, caption='Save File', dir=default_file_name)
+        default_file_name = os.getcwd() + "/temp/" + safename
+
+        self.save_video_location = QFileDialog.getSaveFileName(self, caption='Save File', dir=default_file_name, filter="ext (*)")
         print(self.save_video_location)
 
         if (self.save_video_location[0] == ""):
-            self.save_video_location = default_file_name
+            return 
+            #self.save_video_location = os.getcwd() + "/temp/download"
         else:
             self.save_video_location = self.save_video_location[0]
-
-        self.get_video_info()
 
         try:
             os.makedirs(os.getcwd()+"/temp/")
