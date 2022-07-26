@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+from asyncio.windows_events import NULL
 import json
 import os
 import sys
@@ -19,7 +20,9 @@ import urllib.request
 
 def browse_for_file(destination_widget: QLineEdit):
     filename = QFileDialog.getOpenFileName(caption="Open Video", dir=os.getcwd(), filter="Video File (*.*)")
-    destination_widget.setText(filename[0])
+    if destination_widget != NULL:
+        destination_widget.setText(filename[0])
+    return filename[0]
 
 
 def text_color(color, text):
@@ -43,9 +46,16 @@ def setdarkmode(enabled):
         app.setStyleSheet("")
 
 
+class MyCustomPP(yt_dlp.postprocessor.PostProcessor):
+    def run(self, info):
+        self.to_screen('Doing stuff')
+        return [], info
+
+
 class MainWindow(QMainWindow):
     window = None
     app = None
+    save_video_location = os.getcwd() + "/temp/download"
 
     def __init__(self, _app):
         super(MainWindow, self).__init__()
@@ -77,6 +87,8 @@ class MainWindow(QMainWindow):
         self.window.findChild(QLineEdit, "lineedit_url").returnPressed.connect(self.click_download)
         self.window.findChild(QLineEdit, "lineedit_url").textChanged.connect(self.enable_clear_text_button)
 
+        self.window.findChild(QPushButton, "button_resultingfile").clicked.connect(self.click_location_butlab)
+
         self.window.findChild(QPushButton, "button_browsevideo").clicked.connect(
             lambda: browse_for_file(self.window.findChild(QLineEdit, "lineedit_videopath")))
 
@@ -87,6 +99,14 @@ class MainWindow(QMainWindow):
         self.enable_clear_text_button()
 
         self.clear_temps()
+
+    def click_location_butlab(self):
+        folder_loc = os.getcwd()+"/temp/"
+        folder_loc = folder_loc.replace("/", "\\")
+        print(folder_loc)
+        if os.path.isdir(folder_loc):
+            #subprocess.Popen(r'explorer /select,"'+folder_loc+'"')
+            os.startfile(folder_loc)
 
     def get_video_info(self):
         self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "INFO: "))+"Getting Video Info...")
@@ -148,7 +168,7 @@ class MainWindow(QMainWindow):
 
     def my_hook(self, d):
         if d['status'] == 'finished':
-            print('\n\nDone downloading.\n')
+            print('\n\nDone downloading'+d["filename"]+'.\n')
             self.window.findChild(QTextEdit, "textbox_status").append(text_style("b", text_color("Green", "DOWNLOAD: \t"))+"Done downloading.")
 
         if d['status'] == 'error':
@@ -171,6 +191,16 @@ class MainWindow(QMainWindow):
             print(d['filename'], d['_percent_str'], d['_eta_str'])
 
     def click_download(self):
+        default_file_name = os.getcwd() + "/temp/download"
+
+        self.save_video_location = QFileDialog.getSaveFileName(self, caption='Save File', dir=default_file_name)
+        print(self.save_video_location)
+
+        if (self.save_video_location[0] == ""):
+            self.save_video_location = default_file_name
+        else:
+            self.save_video_location = self.save_video_location[0]
+
         self.get_video_info()
 
         try:
@@ -185,13 +215,14 @@ class MainWindow(QMainWindow):
         self.clear_temps()
 
         options = {
-            'outtmpl': os.getcwd()+"/temp/downloaded.%(ext)s",
+            'outtmpl': self.save_video_location+".%(ext)s",
             'fixup': "detect_or_warn",
             'noplaylist': True,
             'progress_hooks': [self.my_hook],
         }
 
         ydl = yt_dlp.YoutubeDL(options)
+        ydl.add_post_processor(MyCustomPP(), when='post_process')
         url_text = self.window.findChild(QLineEdit, "lineedit_url").text()
         info_dict = ydl.extract_info(url=url_text, download=True)
 
